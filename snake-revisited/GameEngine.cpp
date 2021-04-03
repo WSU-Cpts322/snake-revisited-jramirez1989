@@ -4,7 +4,7 @@ using namespace std;
 
 GameEngine::GameEngine()
 {
-	map = GameMap(40, 40);
+	map = GameMap(41, 81);
 	snake = Snake();
 	pellet = Pellet();
 	currentScore = 0.1;
@@ -31,10 +31,10 @@ GameEngine::GameEngine(char difficulty)
 	gameDifficulty = difficulty;
 	currentLevel = 1;
 	pelletsEaten = 0;
+	map = GameMap(41, 81);
 
 	if (difficulty == 'H')
 	{
-		map = GameMap(41, 81);
 		highscorePlayers = fillHighscorePlayersList('H');
 		gameSpeed = 0.05;
 		powerPexists = true;
@@ -44,7 +44,6 @@ GameEngine::GameEngine(char difficulty)
 	}
 	else //difficulty == 'E'
 	{
-		map = GameMap(41, 81);
 		highscorePlayers = fillHighscorePlayersList('E');
 		gameSpeed = 0.1;
 		powerPexists = false;
