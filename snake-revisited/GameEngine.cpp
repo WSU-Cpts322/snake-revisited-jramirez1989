@@ -7,15 +7,12 @@ GameEngine::GameEngine()
 	map = GameMap(41, 81);
 	snake = Snake();
 	pellet = Pellet();
-	currentScore = 0.1;
+	currentScore = 0;
 	currentLevel = 1;
 	pelletsEaten = 0;
 	gameSpeed = 1;
 	gameDifficulty = 'E';
 	gameOver = false;
-	powerPexists = false;
-	poisonPexists = false;
-	obstaclesExist = false;
 }
 
 GameEngine::GameEngine(char difficulty)
@@ -37,18 +34,19 @@ GameEngine::GameEngine(char difficulty)
 	{
 		highscorePlayers = fillHighscorePlayersList('H');
 		gameSpeed = 0.05;
-		powerPexists = true;
-		poisonPexists = true;
-		obstaclesExist = true;
+
+		Coordinates position = Coordinates(20, 20);
+		poisonPellet = Pellet(-10, position);
 
 	}
 	else //difficulty == 'E'
 	{
 		highscorePlayers = fillHighscorePlayersList('E');
 		gameSpeed = 0.1;
-		powerPexists = false;
-		poisonPexists = false;
-		obstaclesExist = false;
+		poisonPellet = Pellet();
+		Coordinates position = Coordinates(0, 0);
+		poisonPellet.setLocation(position);
+		poisonPellet.setValue(-10);
 	}
 }
 
@@ -57,6 +55,7 @@ vector<Player> GameEngine::fillHighscorePlayersList(char difficulty)
 	vector<Player> list = vector<Player>(5);
 	ifstream scoreFile;
 	int counter = 0;
+
 	if (difficulty == 'E')
 	{
 		scoreFile.open("Easy Highscores.txt");
@@ -114,18 +113,6 @@ char GameEngine::getGameDifficulty()
 {
 	return gameDifficulty;
 }
-bool GameEngine::getPowerPexists()
-{
-	return powerPexists;
-}
-bool GameEngine::getPoisonPexists()
-{
-	return poisonPexists;
-}
-bool GameEngine::getObstaclesExist() 
-{
-	return obstaclesExist;
-}
 bool GameEngine::getGameOver()
 {
 	return gameOver;
@@ -170,7 +157,7 @@ void GameEngine::generateObstacle()
 
 }
 
-void GameEngine::generateNewPellet()
+void GameEngine::generateNewPellet(Pellet currentPellet)
 {
 	const int lowerYBound = map.getHeight() - 4;
 	const int upperYBound = 6;
@@ -182,6 +169,23 @@ void GameEngine::generateNewPellet()
 	    int yPosition = upperYBound + (rand() % (upperYBound - lowerYBound + 1));
 	    int xPosition = leftXBound + (rand() % (rightXBound - leftXBound + 1));
 		bool goodSpot = true;
+
+		if (currentPellet.getValue() == 10)
+		{
+			if ((yPosition == poisonPellet.getLocation().getYposition()) &&
+			xPosition == poisonPellet.getLocation().getXposition())
+			{
+				continue;
+			}
+		}
+		else if (currentPellet.getValue() == -10)
+		{
+			if ((yPosition == pellet.getLocation().getYposition()) &&
+			xPosition == pellet.getLocation().getXposition())
+			{
+				continue;
+			}
+		}
 
 	    for (unsigned int i = 0; i < snake.getBody().size(); i++)
 	    {
@@ -197,7 +201,15 @@ void GameEngine::generateNewPellet()
 			Coordinates newPosition;
 			newPosition.setXposition(xPosition);
 			newPosition.setYposition(yPosition);
-			pellet.setLocation(newPosition);
+
+			if (currentPellet.getValue() == 10)
+			{
+			    pellet.setLocation(newPosition);
+			}
+			else if (currentPellet.getValue() == -10)
+			{
+			    poisonPellet.setLocation(newPosition);
+			}
 			return;
 		}
 	}
@@ -284,10 +296,18 @@ void GameEngine::displaySnake()
 	}
 }
 
-void GameEngine::displayPellet()
+void GameEngine::displayPellet(Pellet currentPellet)
 {
-	wmove(map.getMapWindow(), pellet.getLocation().getYposition(), pellet.getLocation().getXposition());
-	wprintw(map.getMapWindow(), "@");	
+	wmove(map.getMapWindow(), currentPellet.getLocation().getYposition(), currentPellet.getLocation().getXposition());
+
+	if (currentPellet.getValue() == 10)
+	{
+	    wprintw(map.getMapWindow(), "@");	
+	}
+	else if (currentPellet.getValue() == -10)
+	{
+		wprintw(map.getMapWindow(), "X");
+	}
 }
 
 void GameEngine::replaceHighScore()
@@ -372,7 +392,12 @@ void GameEngine::startGame()
 		displayHeader(xBound);
 		displayFooter(xBound);
 		displaySnake();
-		displayPellet();
+		displayPellet(pellet);
+
+		if (gameDifficulty == 'H')
+		{
+			displayPellet(poisonPellet);
+		}
 
 		map.refresh();
 
@@ -439,7 +464,7 @@ void GameEngine::startGame()
 
 		if (collisionType == "pellet")
 		{
-			generateNewPellet();
+			generateNewPellet(pellet);
 			pelletsEaten++;
 			currentScore += pellet.getValue();
 
@@ -447,6 +472,17 @@ void GameEngine::startGame()
 			{
 				currentLevel++;
 			}
+		}
+		else if (snake.getBody().front().equals(poisonPellet.getLocation()))
+		{
+			generateNewPellet(poisonPellet);
+			pelletsEaten++;
+			currentScore += poisonPellet.getValue();
+
+			if (pelletsEaten % 10 == 0)
+			{
+				currentLevel++;
+			}			
 		}
 		else if (collisionType == "body")
 		{

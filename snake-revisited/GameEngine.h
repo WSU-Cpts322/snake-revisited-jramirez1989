@@ -24,6 +24,7 @@ private:
 	vector<Player> highscorePlayers;
 	Snake snake;
 	Pellet pellet;
+	Pellet poisonPellet;
 	GameMap map;
 
 	int currentScore;
@@ -31,10 +32,6 @@ private:
 	int pelletsEaten;
 	double gameSpeed;
 	char gameDifficulty;
-
-	bool powerPexists;
-	bool poisonPexists;
-	bool obstaclesExist;
 	bool gameOver;
 
 public:
@@ -51,9 +48,6 @@ public:
 	double getGameSpeed();
 	char getGameDifficulty();
 
-	bool getPowerPexists();
-	bool getPoisonPexists();
-	bool getObstaclesExist();
 	bool getGameOver();
 	vector<Player> fillHighscorePlayersList(char);
 
@@ -64,14 +58,14 @@ public:
 	bool headCollidedWithBorder();
 
 	void generateObstacle();
-	void generateNewPellet();
+	void generateNewPellet(Pellet currentPellet);
 
 	void displayHeader(int);	
 	void displayFooter(int);
 	void displayGameoverScreen();
 	void displayPause();
 	void displaySnake();
-	void displayPellet();
+	void displayPellet(Pellet currentPellet);
 
 	void replaceHighScore();
 	void writeHighScores();

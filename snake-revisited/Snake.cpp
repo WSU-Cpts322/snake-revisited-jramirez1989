@@ -106,6 +106,7 @@ string Snake::moveSnake(char direction, Pellet pellet)
 	}
 	return "good";
 }
+
 void Snake::growBody(Coordinates newHeadPosition)
 {
 
