@@ -25,6 +25,7 @@ private:
 	Snake snake;
 	Pellet pellet;
 	Pellet poisonPellet;
+	Pellet powerPellet;
 	GameMap map;
 
 	int currentScore;
