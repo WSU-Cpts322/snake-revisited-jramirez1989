@@ -15,6 +15,7 @@ GameEngine::GameEngine()
 	gameSpeed = 1;
 	gameDifficulty = 'E';
 	gameOver = false;
+	powerPelletEaten = false;
 }
 
 GameEngine::GameEngine(char difficulty)
@@ -26,12 +27,13 @@ GameEngine::GameEngine(char difficulty)
 	gameOver = false;
 	snake = Snake();
 	pellet = Pellet();
-	generateNewPellet(pellet);
 
 	gameDifficulty = difficulty;
 	currentLevel = 1;
 	pelletsEaten = 0;
 	map = GameMap(41, 81);
+	powerPelletEaten = false;
+
 
 	if (difficulty == 'H')
 	{
@@ -39,11 +41,23 @@ GameEngine::GameEngine(char difficulty)
 		gameSpeed = 0.05;
 
 		Coordinates position = Coordinates(20, 20);
-		poisonPellet = Pellet(-10, position);
-		generateNewPellet(poisonPellet);
+		poisonPellet = Pellet(-1, position);
 
 		Coordinates position2 = Coordinates(30, 30);
-		powerPellet = Pellet(40, position2);
+		powerPellet = Pellet(4, position2);
+
+		obstacleList.push_back(Obstacle("Top-left L", 6, 17, 20, 10));
+		obstacleList.push_back(Obstacle("Top-right L", 75, 17, 20, 10));
+		obstacleList.push_back(Obstacle("Bottom-left L", 6, 33, 20, 10));
+		obstacleList.push_back(Obstacle("Bottom-right L", 75, 33, 20, 10));
+
+		obstacleList.push_back(Obstacle("Top-left L", 12, 20, 24, 5));
+		obstacleList.push_back(Obstacle("Top-right L", 70, 20, 24, 5));
+		obstacleList.push_back(Obstacle("Bottom-left L", 12, 26, 24, 5));
+		obstacleList.push_back(Obstacle("Bottom-right L", 70, 26, 24, 5));
+
+		generateNewPellet(pellet);
+		generateNewPellet(poisonPellet);
 		generateNewPellet(powerPellet);
 
 	}
@@ -51,15 +65,6 @@ GameEngine::GameEngine(char difficulty)
 	{
 		highscorePlayers = fillHighscorePlayersList('E');
 		gameSpeed = 0.1;
-
-		poisonPellet = Pellet();
-		Coordinates position = Coordinates(0, 0);
-		poisonPellet.setLocation(position);
-		poisonPellet.setValue(-10);
-
-		powerPellet = Pellet();
-		powerPellet.setLocation(position);
-		powerPellet.setValue(40);
 	}
 }
 
@@ -165,9 +170,19 @@ bool GameEngine::headCollidedWithBorder()
 	return false;
 }
 
-void GameEngine::generateObstacle()
+bool GameEngine::headCollidedWithObstacle()
 {
-
+	for (int i = 0; i < obstacleList.size(); i++)
+	{
+		for (int j = 0; j < obstacleList[i].getLocations().size(); j++)
+		{
+			if (snake.getBody()[0].equals(obstacleList[i].getLocations()[j]))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void GameEngine::generateNewPellet(Pellet currentPellet)
@@ -181,9 +196,10 @@ void GameEngine::generateNewPellet(Pellet currentPellet)
 	{
 	    int yPosition = upperYBound + (rand() % (upperYBound - lowerYBound + 1));
 	    int xPosition = leftXBound + (rand() % (rightXBound - leftXBound + 1));
+
 		bool goodSpot = true;
 
-		if (currentPellet.getValue() == 10)
+		if (currentPellet.getValue() == 1)
 		{
 			if ((yPosition == poisonPellet.getLocation().getYposition()) &&
 			xPosition == poisonPellet.getLocation().getXposition())
@@ -196,7 +212,7 @@ void GameEngine::generateNewPellet(Pellet currentPellet)
 				continue;
 			}
 		}
-		else if (currentPellet.getValue() == -10)
+		else if (currentPellet.getValue() == -1)
 		{
 			if ((yPosition == pellet.getLocation().getYposition()) &&
 			xPosition == pellet.getLocation().getXposition())
@@ -209,7 +225,7 @@ void GameEngine::generateNewPellet(Pellet currentPellet)
 				continue;
 			}
 		}
-		else if (currentPellet.getValue() == 40)
+		else if (currentPellet.getValue() == 4)
 		{
 			if ((yPosition == pellet.getLocation().getYposition()) &&
 			    xPosition == pellet.getLocation().getXposition())
@@ -232,21 +248,34 @@ void GameEngine::generateNewPellet(Pellet currentPellet)
 				break;
 			}
 	    }
+
+		for (unsigned int i = 0; i < obstacleList.size(); i++)
+		{
+			for (unsigned int j = 0; j < obstacleList[i].getLocations().size(); j++)
+			{
+				if ((xPosition == obstacleList[i].getLocations()[j].getXposition()) &&
+				(yPosition == obstacleList[i].getLocations()[j].getYposition()))
+				{
+					goodSpot = false;
+					break;
+				}
+			}
+		}
 		if (goodSpot == true)
 		{
 			Coordinates newPosition;
 			newPosition.setXposition(xPosition);
 			newPosition.setYposition(yPosition);
 
-			if (currentPellet.getValue() == 10)
+			if (currentPellet.getValue() == 1)
 			{
 			    pellet.setLocation(newPosition);
 			}
-			else if (currentPellet.getValue() == -10)
+			else if (currentPellet.getValue() == -1)
 			{
 			    poisonPellet.setLocation(newPosition);
 			}
-			else if (currentPellet.getValue() == 40)
+			else if (currentPellet.getValue() == 4)
 			{
 				powerPellet.setLocation(newPosition);
 			}
@@ -285,7 +314,6 @@ void GameEngine::displayFooter(int xBound)
 {
 		mvwprintw(map.getMapWindow(), map.getHeight() - 2, 5, "Controls: Movement = arrow keys");
 		mvwprintw(map.getMapWindow(), map.getHeight() - 2, 45, "pause = p");
-		char highscore[1000];
 		mvwprintw(map.getMapWindow(), map.getHeight() - 2, 65, "quit = q");
 
 		char boundary[xBound];
@@ -340,18 +368,30 @@ void GameEngine::displayPellet(Pellet currentPellet)
 {
 	wmove(map.getMapWindow(), currentPellet.getLocation().getYposition(), currentPellet.getLocation().getXposition());
 
-	if (currentPellet.getValue() == 10)
+	if (currentPellet.getValue() == 1)
 	{
 	    wprintw(map.getMapWindow(), "@");	
 	}
-	else if (currentPellet.getValue() == -10)
+	else if (currentPellet.getValue() == -1)
 	{
 		wprintw(map.getMapWindow(), "X");
 	}
-	else if (currentPellet.getValue() == 40)
+	else if (currentPellet.getValue() == 4)
 	{
 		wprintw(map.getMapWindow(), "P");
 	}
+}
+
+void GameEngine::displayObstacle(Obstacle currentObstacle)
+{
+	for (int i = 0; i < currentObstacle.getLocations().size();i++)
+	{
+		wmove(map.getMapWindow(), currentObstacle.getLocations()[i].getYposition(),
+	        currentObstacle.getLocations()[i].getXposition());
+
+		wprintw(map.getMapWindow(), "#");
+	}
+
 }
 
 void GameEngine::replaceHighScore()
@@ -426,6 +466,7 @@ void GameEngine::startGame()
 	nodelay(map.getMapWindow(), true);
 
 	int input;
+	int counter = 0;
 	const int xBound = map.getWidth() - 2;
 	string collisionType = "";
 
@@ -442,6 +483,11 @@ void GameEngine::startGame()
 		{
 			displayPellet(poisonPellet);
 			displayPellet(powerPellet);
+
+			for (int i = 0; i < obstacleList.size();i++)
+			{
+				displayObstacle(obstacleList[i]);
+			}
 		}
 
 		map.refresh();
@@ -461,7 +507,7 @@ void GameEngine::startGame()
 			if (maxTime <= duration)
 			{
 				char direction = snake.getPreviousDirection();
-				collisionType = snake.moveSnake(direction, pellet);
+				collisionType = snake.moveSnake(direction, pellet, counter);
 				break;
 			}
 		}
@@ -492,19 +538,19 @@ void GameEngine::startGame()
 		}
 		else if (input == KEY_UP)
 		{
-			collisionType = snake.moveSnake('U', pellet);
+			collisionType = snake.moveSnake('U', pellet, counter);
 		}
 		else if (input == KEY_DOWN)
 		{
-			collisionType = snake.moveSnake('D', pellet);
+			collisionType = snake.moveSnake('D', pellet, counter);
 		}
 		else if (input == KEY_LEFT)
 		{
-			collisionType = snake.moveSnake('L', pellet);
+			collisionType = snake.moveSnake('L', pellet, counter);
 		}
 		else if (input == KEY_RIGHT)
 		{
-			collisionType = snake.moveSnake('R', pellet);
+			collisionType = snake.moveSnake('R', pellet, counter);
 		}
 
 		if (collisionType == "pellet")
@@ -527,7 +573,7 @@ void GameEngine::startGame()
 			if (pelletsEaten % 10 == 0)
 			{
 				currentLevel++;
-			}			
+			}
 		}
 		else if (snake.getBody().front().equals(powerPellet.getLocation()))
 		{
@@ -538,7 +584,13 @@ void GameEngine::startGame()
 			if (pelletsEaten % 10 == 0)
 			{
 				currentLevel++;
-			}				
+			}
+			powerPelletEaten = true;
+			counter = 3;
+		}
+		else if (collisionType == "false")
+		{
+			powerPelletEaten = false;
 		}
 		else if (collisionType == "body")
 		{
@@ -548,6 +600,11 @@ void GameEngine::startGame()
 		{
 			gameOver = true;
 		}
+		else if (headCollidedWithObstacle())
+		{
+			gameOver = true;
+		}
+		counter--;
 		map.clear();
 	}
 	if (input != 113)

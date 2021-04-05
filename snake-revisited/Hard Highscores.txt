@@ -1,10 +1,10 @@
-qqq
-200
 AAA
-100
+0
 BBB
-90
-qqq
-90
+0
 CCC
-80
+0
+DDD
+0
+EEE
+0

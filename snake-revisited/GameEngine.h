@@ -3,6 +3,7 @@
 #include "Pellet.h"
 #include "Coordinates.h"
 #include "GameMap.h"
+#include "Obstacle.h"
 
 #include <string>
 #include <iostream>
@@ -12,7 +13,6 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
@@ -26,6 +26,7 @@ private:
 	Pellet pellet;
 	Pellet poisonPellet;
 	Pellet powerPellet;
+	vector<Obstacle> obstacleList;
 	GameMap map;
 
 	int currentScore;
@@ -34,6 +35,7 @@ private:
 	double gameSpeed;
 	char gameDifficulty;
 	bool gameOver;
+	bool powerPelletEaten;
 
 public:
 	GameEngine();
@@ -57,16 +59,17 @@ public:
 	void decrementScore(int);
 
 	bool headCollidedWithBorder();
+	bool headCollidedWithObstacle();
 
-	void generateObstacle();
-	void generateNewPellet(Pellet currentPellet);
+	void generateNewPellet(Pellet);
 
 	void displayHeader(int);	
 	void displayFooter(int);
 	void displayGameoverScreen();
 	void displayPause();
 	void displaySnake();
-	void displayPellet(Pellet currentPellet);
+	void displayPellet(Pellet);
+	void displayObstacle(Obstacle);
 
 	void replaceHighScore();
 	void writeHighScores();

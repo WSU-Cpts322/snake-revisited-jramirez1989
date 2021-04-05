@@ -2,7 +2,7 @@
 
 Pellet::Pellet()
 {
-	value = 10;
+	value = 1;
 	location = Coordinates(10, 10);
 }
 Pellet::Pellet(int number, Coordinates position)

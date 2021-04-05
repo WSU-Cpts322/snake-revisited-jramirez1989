@@ -2,9 +2,9 @@
 
 Snake::Snake()
 {
-	Coordinates a = Coordinates(33, 10);
-	Coordinates b = Coordinates(32, 10);
-	Coordinates c = Coordinates(31, 10);
+	Coordinates a = Coordinates(41, 20);
+	Coordinates b = Coordinates(40, 20);
+	Coordinates c = Coordinates(39, 20);
 
 	body.push_back(a);
 	body.push_back(b);
@@ -25,7 +25,7 @@ void Snake::setPreviousDirection(char direction)
 {
 	previousDirection = direction;
 }
-string Snake::moveSnake(char direction, Pellet pellet)
+string Snake::moveSnake(char direction, Pellet pellet, int powerCounter)
 {
 	Coordinates newHead = body.front();
 	int oldPosition;
@@ -94,7 +94,10 @@ string Snake::moveSnake(char direction, Pellet pellet)
     
 	if (!(headCollidedWithPellet(pellet.getLocation())))
 	{
-		body.pop_back();
+		if (powerCounter <= 0)
+		{
+			body.pop_back();
+		}
 	}
 	else
 	{
@@ -105,11 +108,6 @@ string Snake::moveSnake(char direction, Pellet pellet)
 		return "body";
 	}
 	return "good";
-}
-
-void Snake::growBody(Coordinates newHeadPosition)
-{
-
 }
 bool Snake::headCollidedWithBody(Coordinates headPosition)
 {

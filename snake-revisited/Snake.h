@@ -16,9 +16,7 @@ public:
 	vector<Coordinates> getBody();
 	char getPreviousDirection();
 	void setPreviousDirection(char);
-	string moveSnake(char, Pellet);
-	void growBody(Coordinates);
-
+	string moveSnake(char, Pellet, int);
 	bool headCollidedWithBody(Coordinates);
 	bool headCollidedWithPellet(Coordinates);
 
