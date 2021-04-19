@@ -329,14 +329,16 @@ void GameEngine::displayGameoverScreen()
 {
 	map.clear();
 	map.refresh();
+
 	nodelay(map.getMapWindow(), false);
 	mvwprintw(map.getMapWindow(), map.getHeight() / 2.5, map.getWidth() / 2.5, "GAME OVER");
-	map.refresh();
 	wgetch(map.getMapWindow());
+
 	if (currentScore > highscorePlayers[4].getScore())
 	{
 		replaceHighScore();
 	}
+	map.refresh();
 
 }
 
@@ -396,29 +398,74 @@ void GameEngine::displayObstacle(Obstacle currentObstacle)
 
 void GameEngine::replaceHighScore()
 {
-	map.refresh();
+	int choice = ' ';
 	int x = (map.getWidth() / 2.5);
 	int y = (map.getHeight() / 2.5);
+    char initials[10];
 
-	mvwprintw(map.getMapWindow(), y, x, "Enter 3 Initials:");
-	map.refresh();
+	while (choice != 'y')
+	{
+	    mvwprintw(map.getMapWindow(), y - 2, x, "NEW HIGH SCORE!");
+	    mvwprintw(map.getMapWindow(), y, x, "Enter 3 Initials:");
+	    map.refresh();
 
-	char initials[10];
+	    char first = wgetch(map.getMapWindow());
+	    sprintf(initials, "%c", first);
+	    mvwprintw(map.getMapWindow(), y, x + 18, initials);
+	    map.refresh();
 
-	char first = wgetch(map.getMapWindow());
-	sprintf(initials, "%c", first);
-	mvwprintw(map.getMapWindow(), y, x + 18, initials);
-	map.refresh();
+	    char second = wgetch(map.getMapWindow());
+	    sprintf(initials, "%s%c", initials, second);
+	    mvwprintw(map.getMapWindow(), y, x + 18, initials);
+	    map.refresh();
 
-	char second = wgetch(map.getMapWindow());
-	sprintf(initials, "%s%c", initials, second);
-	mvwprintw(map.getMapWindow(), y, x + 18, initials);
-	map.refresh();
+	    char third = wgetch(map.getMapWindow());
+	    sprintf(initials, "%s%c", initials, third);
 
-	char third = wgetch(map.getMapWindow());
-	sprintf(initials, "%s%c", initials, third);
-	mvwprintw(map.getMapWindow(), y, x + 18, initials);
-	map.refresh();
+        int cursorY = 18;
+        while (true)
+	    {
+		    mvwprintw(map.getMapWindow(), y - 2, x, "NEW HIGH SCORE!");
+			mvwprintw(map.getMapWindow(), y, x, "Enter 3 Initials:");
+			mvwprintw(map.getMapWindow(), y, x + 18, initials);
+			map.refresh();
+            mvwprintw(map.getMapWindow(), y + 2, x, "Submit?    Yes");
+	        mvwprintw(map.getMapWindow(), y + 3, x + 11, "No");
+	
+	        mvwprintw(map.getMapWindow(), cursorY, x + 9, "->");
+			mvwprintw(map.getMapWindow(), 32, 4, "Up and down arrow keys to change option, 'enter' key to select an option");
+
+	        choice = wgetch(map.getMapWindow());
+
+		    if ((choice == KEY_UP) || (choice == KEY_DOWN))
+		    {
+			    if (cursorY == 18)
+			    {
+				    cursorY = 19;
+			    }
+			    else
+			    {
+				    cursorY = 18;
+			    }
+		    }
+		    else if (choice == '\n')
+		    {
+			    if (cursorY == 18)
+			    {
+				    choice = 'y';
+				    break;
+			    }
+			    else
+			    {
+				    choice = 'n';
+				    break;
+			    }
+	    	}
+		    map.clear();
+		    map.refresh();
+	    }
+	    map.clear();
+	}
 
 	Player user = Player(currentScore, initials);
 

@@ -1,8 +1,8 @@
 CC=g++ -std=c++11
 CFLAGS = -g -Wall
 
-main: main.o GameEngine.o Snake.o Coordinates.o Player.o Pellet.o GameMap.o Obstacle.o
-	$(CC) $(CFLAGS) -o main main.o GameEngine.o Snake.o Coordinates.o Player.o Pellet.o GameMap.o Obstacle.o -lncurses
+snake-revisited: main.o GameEngine.o Snake.o Coordinates.o Player.o Pellet.o GameMap.o Obstacle.o MainMenu.o
+	$(CC) $(CFLAGS) -o snake-revisited main.o GameEngine.o Snake.o Coordinates.o Player.o Pellet.o GameMap.o Obstacle.o MainMenu.o -lncurses
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
@@ -27,6 +27,9 @@ GameMap.o: GameMap.cpp
 
 Obstacle.o: Obstacle.cpp
 	$(CC) $(CFLAGS) -c Obstacle.cpp
+
+MainMenu.o: MainMenu.cpp
+	$(CC) $(CFLAGS) -c MainMenu.cpp
 
 clean: 
 	rm *.o

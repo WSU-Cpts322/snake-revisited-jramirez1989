@@ -2,13 +2,17 @@
 
 Snake::Snake()
 {
-	Coordinates a = Coordinates(41, 20);
-	Coordinates b = Coordinates(40, 20);
-	Coordinates c = Coordinates(39, 20);
+	Coordinates a = Coordinates(42, 20);
+	Coordinates b = Coordinates(41, 20);
+	Coordinates c = Coordinates(40, 20);
+	Coordinates d = Coordinates(39, 20);
+	Coordinates head = Coordinates(38, 20);
 
 	body.push_back(a);
 	body.push_back(b);
 	body.push_back(c);
+	body.push_back(d);
+	body.push_back(head);
 	previousDirection = 'R';
 }
 
