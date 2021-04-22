@@ -1,0 +1,10 @@
+CAT
+0
+DOG
+0
+OWL
+0
+BAT
+0
+FOX
+0
